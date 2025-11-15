@@ -51,24 +51,22 @@ const deployMocks: DeployFunction = async function (hre: HardhatRuntimeEnvironme
     // Set up initial state
     console.log("\n⚙️  Setting up initial state...");
 
+    // Initialize USDC reserve in the pool
+    await pool.initReserve(
+      mockUSDC.address, // asset
+      "HypurrFi USDC", // aToken name
+      "hyUSDC", // aToken symbol
+      8000, // 80% LTV
+      8500, // 85% liquidation threshold
+      500, // 5% liquidation bonus
+      parseUnits("1", 8), // $1.00 price (8 decimals)
+    );
+    console.log("✅ Initialized USDC reserve in pool");
+
     // Mint initial USDC to deployer for testing (1,000,000 USDC)
     const mintAmount = parseUnits("1000000", 6);
     await usdc.mint(deployer, mintAmount);
     console.log(`✅ Minted ${mintAmount.toString()} USDC to deployer`);
-
-    // Set initial ETH price in pool (e.g., $2000 per ETH)
-    // Assuming price is stored with 8 decimals (like Chainlink)
-    const ethPrice = parseUnits("2000", 8);
-    await pool.setAssetPrice(
-      "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", // ETH address
-      ethPrice,
-    );
-    console.log(`✅ Set ETH price to $${ethPrice.toString()} in pool`);
-
-    // Set USDC price to $1 (with 8 decimals)
-    const usdcPrice = parseUnits("1", 8);
-    await pool.setAssetPrice(mockUSDC.address, usdcPrice);
-    console.log(`✅ Set USDC price to $${usdcPrice.toString()} in pool`);
 
     console.log("\n✨ Mock contracts deployed and configured successfully!\n");
   } else {
