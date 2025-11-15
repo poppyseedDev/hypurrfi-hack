@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { parseEther, parseUnits } from "ethers";
+import { parseUnits } from "ethers";
 
 /**
  * Deploys HypurrFiVault contract
@@ -20,7 +20,9 @@ const deployVault: DeployFunction = async function (hre: HardhatRuntimeEnvironme
   console.log("\n🏦 Deploying HypurrFiVault...");
 
   let underlyingAsset: string;
+  let borrowAsset: string;
   let poolAddress: string;
+  let oracleAddress: string;
 
   // Get addresses based on network
   if (chainId === "31337" || chainId === "1337") {
@@ -28,21 +30,20 @@ const deployVault: DeployFunction = async function (hre: HardhatRuntimeEnvironme
     const mockUSDC = await get("MockERC20");
     const mockPool = await get("MockHypurrFiPool");
     underlyingAsset = mockUSDC.address;
+    borrowAsset = mockUSDC.address; // For testing, use same asset
     poolAddress = mockPool.address;
+    oracleAddress = mockPool.address; // MockPool has oracle functionality
     console.log("📍 Using mock contracts:");
     console.log("  - Underlying Asset (USDC):", underlyingAsset);
+    console.log("  - Borrow Asset (USDC):", borrowAsset);
     console.log("  - Pool:", poolAddress);
+    console.log("  - Oracle:", oracleAddress);
   } else {
     // For testnet/mainnet, these would need to be configured
     throw new Error(
       "Please configure real USDC and HypurrFi Pool addresses for non-local networks in the deployment script",
     );
   }
-
-  // Vault parameters
-  const targetLeverageRatio = parseEther("2"); // 2x leverage (in wei for precision)
-  const minHealthFactor = parseEther("1.3"); // 1.3 minimum health factor
-  const rebalanceHealthFactorThreshold = parseEther("1.5"); // Rebalance at 1.5 HF
 
   console.log("\n⚙️  Vault Parameters:");
   console.log("  - Target Leverage:", "2x");
@@ -52,7 +53,7 @@ const deployVault: DeployFunction = async function (hre: HardhatRuntimeEnvironme
   // Deploy HypurrFiVault
   const vault = await deploy("HypurrFiVault", {
     from: deployer,
-    args: [underlyingAsset, poolAddress, targetLeverageRatio, minHealthFactor, rebalanceHealthFactorThreshold],
+    args: [underlyingAsset, borrowAsset, poolAddress, oracleAddress, "HypurrFi Leverage Vault", "hyVault"],
     log: true,
     autoMine: true,
   });
@@ -65,12 +66,14 @@ const deployVault: DeployFunction = async function (hre: HardhatRuntimeEnvironme
   try {
     const asset = await vaultContract.asset();
     const pool = await vaultContract.pool();
-    const leverage = await vaultContract.targetLeverageRatio();
+    const name = await vaultContract.name();
+    const symbol = await vaultContract.symbol();
 
     console.log("\n✨ Vault Deployment Verified:");
+    console.log("  - Name:", name);
+    console.log("  - Symbol:", symbol);
     console.log("  - Asset Address:", asset);
     console.log("  - Pool Address:", pool);
-    console.log("  - Target Leverage:", leverage.toString());
 
     // Optional: Set up initial liquidity on local networks
     if (chainId === "31337" || chainId === "1337") {
