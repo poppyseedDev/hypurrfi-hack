@@ -77,7 +77,7 @@ contract HypurrFiVault is ERC4626, ReentrancyGuard, Ownable {
     // Constants
     uint256 private constant BASIS_POINTS = 10000;
     uint256 private constant VARIABLE_INTEREST_RATE_MODE = 2;
-    uint256 private constant REFERRAL_CODE = 0;
+    uint16 private constant REFERRAL_CODE = 0;
 
     // ==================== Modifiers ====================
 
