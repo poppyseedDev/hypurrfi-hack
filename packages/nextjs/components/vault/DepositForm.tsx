@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useCallback, useMemo } from "react";
-import { parseEther, formatEther } from "viem";
+import React, { useCallback, useMemo, useState } from "react";
+import { formatEther, parseEther } from "viem";
 import { useAccount } from "wagmi";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { notification } from "~~/utils/scaffold-eth";
@@ -16,14 +16,13 @@ export const DepositForm: React.FC = () => {
   const [isApproving, setIsApproving] = useState(false);
   const [isDepositing, setIsDepositing] = useState(false);
 
-  // Placeholder vault contract address - replace with actual deployed address
-  const VAULT_ADDRESS = "0x0000000000000000000000000000000000000000";
+  const VAULT_ADDRESS = "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"; // HypurrFiVault address
 
   // Fetch user's token balance (SE2Token as example)
   const { data: tokenBalance } = useScaffoldReadContract({
     contractName: "SE2Token",
     functionName: "balanceOf",
-    args: connectedAddress ? [connectedAddress] : undefined,
+    args: [connectedAddress],
     query: {
       enabled: !!connectedAddress,
     },
@@ -33,25 +32,34 @@ export const DepositForm: React.FC = () => {
   const { data: allowance, refetch: refetchAllowance } = useScaffoldReadContract({
     contractName: "SE2Token",
     functionName: "allowance",
-    args: connectedAddress ? [connectedAddress, VAULT_ADDRESS] : undefined,
+    args: [connectedAddress, VAULT_ADDRESS],
     query: {
       enabled: !!connectedAddress,
     },
   });
 
   // Fetch estimated shares for deposit amount
+  const estimatedSharesAmount = useMemo(() => {
+    if (!depositAmount || parseFloat(depositAmount) <= 0) return undefined;
+    try {
+      return parseEther(depositAmount);
+    } catch {
+      return undefined;
+    }
+  }, [depositAmount]);
+
   const { data: estimatedShares } = useScaffoldReadContract({
-    contractName: "VaultContract",
+    contractName: "HypurrFiVault",
     functionName: "convertToShares",
-    args: depositAmount ? [parseEther(depositAmount)] : undefined,
+    args: [estimatedSharesAmount],
     query: {
-      enabled: !!depositAmount && parseFloat(depositAmount) > 0,
+      enabled: estimatedSharesAmount !== undefined,
     },
   });
 
   // Write hooks for approval and deposit
   const { writeContractAsync: approveAsync } = useScaffoldWriteContract("SE2Token");
-  const { writeContractAsync: depositAsync } = useScaffoldWriteContract("VaultContract");
+  const { writeContractAsync: depositAsync } = useScaffoldWriteContract("HypurrFiVault");
 
   // Check if approval is needed
   const needsApproval = useMemo(() => {
@@ -113,7 +121,7 @@ export const DepositForm: React.FC = () => {
 
       await depositAsync({
         functionName: "deposit",
-        args: [amount],
+        args: [amount, connectedAddress], // ERC-4626 deposit requires (assets, receiver)
       });
 
       notification.success("Deposit successful!");
@@ -142,9 +150,7 @@ export const DepositForm: React.FC = () => {
         <div className="form-control w-full">
           <label className="label">
             <span className="label-text">Deposit Amount</span>
-            <span className="label-text-alt">
-              Balance: {tokenBalance ? formatEther(tokenBalance) : "0"} SE2
-            </span>
+            <span className="label-text-alt">Balance: {tokenBalance ? formatEther(tokenBalance) : "0"} SE2</span>
           </label>
           <div className="flex gap-2">
             <input
@@ -197,20 +203,12 @@ export const DepositForm: React.FC = () => {
               <span>Please connect your wallet to deposit</span>
             </div>
           ) : needsApproval ? (
-            <button
-              className="btn btn-primary w-full"
-              onClick={handleApprove}
-              disabled={!isValid || isApproving}
-            >
+            <button className="btn btn-primary w-full" onClick={handleApprove} disabled={!isValid || isApproving}>
               {isApproving && <span className="loading loading-spinner"></span>}
               {isApproving ? "Approving..." : "Approve Token"}
             </button>
           ) : (
-            <button
-              className="btn btn-primary w-full"
-              onClick={handleDeposit}
-              disabled={!isValid || isDepositing}
-            >
+            <button className="btn btn-primary w-full" onClick={handleDeposit} disabled={!isValid || isDepositing}>
               {isDepositing && <span className="loading loading-spinner"></span>}
               {isDepositing ? "Depositing..." : "Deposit"}
             </button>

@@ -8,11 +8,10 @@ import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
  */
 export const useVaultPosition = (userAddress?: string) => {
   // Fetch user's share balance
-  // Note: Replace "VaultContract" with your actual vault contract name once deployed
   const { data: shares, isLoading: sharesLoading } = useScaffoldReadContract({
-    contractName: "VaultContract",
+    contractName: "HypurrFiVault",
     functionName: "balanceOf",
-    args: userAddress ? [userAddress] : undefined,
+    args: [userAddress],
     query: {
       enabled: !!userAddress,
     },
@@ -20,33 +19,22 @@ export const useVaultPosition = (userAddress?: string) => {
 
   // Fetch total vault assets (TVL)
   const { data: totalAssets, isLoading: totalAssetsLoading } = useScaffoldReadContract({
-    contractName: "VaultContract",
+    contractName: "HypurrFiVault",
     functionName: "totalAssets",
     watch: true,
   });
 
   // Fetch total shares supply
   const { data: totalSupply, isLoading: totalSupplyLoading } = useScaffoldReadContract({
-    contractName: "VaultContract",
+    contractName: "HypurrFiVault",
     functionName: "totalSupply",
     watch: true,
   });
 
-  // Fetch health factor for the user
-  const { data: healthFactor, isLoading: healthFactorLoading } = useScaffoldReadContract({
-    contractName: "VaultContract",
-    functionName: "getHealthFactor",
-    args: userAddress ? [userAddress] : undefined,
-    watch: true,
-    query: {
-      enabled: !!userAddress,
-    },
-  });
-
-  // Fetch leverage ratio
-  const { data: leverageRatio, isLoading: leverageLoading } = useScaffoldReadContract({
-    contractName: "VaultContract",
-    functionName: "getCurrentLeverageRatio",
+  // Fetch vault position details (includes health factor)
+  const { data: positionDetails, isLoading: positionDetailsLoading } = useScaffoldReadContract({
+    contractName: "HypurrFiVault",
+    functionName: "getPositionDetails",
     watch: true,
   });
 
@@ -61,15 +49,30 @@ export const useVaultPosition = (userAddress?: string) => {
     return positionValue;
   }, [positionValue]);
 
-  const isLoading =
-    sharesLoading || totalAssetsLoading || totalSupplyLoading || healthFactorLoading || leverageLoading;
+  // Extract health factor from position details
+  const healthFactor = useMemo(() => {
+    if (!positionDetails) return 0n;
+    return positionDetails[2]; // healthFactor is the 3rd element in the tuple
+  }, [positionDetails]);
+
+  // Calculate leverage ratio from position details
+  const leverageRatio = useMemo(() => {
+    if (!positionDetails) return 0n;
+    const totalCollateral = positionDetails[0];
+    const totalDebt = positionDetails[1];
+    if (totalCollateral === 0n) return 0n;
+    // Leverage = (Collateral + Debt) / Collateral
+    return ((totalCollateral + totalDebt) * BigInt(1e18)) / totalCollateral;
+  }, [positionDetails]);
+
+  const isLoading = sharesLoading || totalAssetsLoading || totalSupplyLoading || positionDetailsLoading;
 
   return {
     shares: shares || 0n,
     positionValue,
     underlyingAssets,
-    healthFactor: healthFactor || 0n,
-    leverageRatio: leverageRatio || 0n,
+    healthFactor,
+    leverageRatio,
     totalAssets: totalAssets || 0n,
     totalSupply: totalSupply || 0n,
     isLoading,

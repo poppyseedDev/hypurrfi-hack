@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useCallback, useMemo } from "react";
-import { parseEther, formatEther } from "viem";
+import React, { useCallback, useMemo, useState } from "react";
+import { formatEther, parseEther } from "viem";
 import { useAccount } from "wagmi";
-import { useVaultPosition } from "~~/hooks/vault";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useVaultPosition } from "~~/hooks/vault";
 import { notification } from "~~/utils/scaffold-eth";
 
 type WithdrawType = "partial" | "full";
@@ -21,18 +21,28 @@ export const WithdrawForm: React.FC = () => {
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
+  // Calculate estimated assets amount
+  const estimatedAssetsAmount = useMemo(() => {
+    if (!withdrawAmount || parseFloat(withdrawAmount) <= 0) return undefined;
+    try {
+      return parseEther(withdrawAmount);
+    } catch {
+      return undefined;
+    }
+  }, [withdrawAmount]);
+
   // Fetch estimated assets for withdrawal amount
   const { data: estimatedAssets } = useScaffoldReadContract({
-    contractName: "VaultContract",
+    contractName: "HypurrFiVault",
     functionName: "convertToAssets",
-    args: withdrawAmount ? [parseEther(withdrawAmount)] : undefined,
+    args: [estimatedAssetsAmount],
     query: {
-      enabled: !!withdrawAmount && parseFloat(withdrawAmount) > 0,
+      enabled: estimatedAssetsAmount !== undefined,
     },
   });
 
   // Write hook for withdrawal
-  const { writeContractAsync: withdrawAsync } = useScaffoldWriteContract("VaultContract");
+  const { writeContractAsync: withdrawAsync } = useScaffoldWriteContract("HypurrFiVault");
 
   // Calculate withdrawal amount based on type
   const actualWithdrawAmount = useMemo(() => {
@@ -76,7 +86,7 @@ export const WithdrawForm: React.FC = () => {
 
       await withdrawAsync({
         functionName: "withdraw",
-        args: [actualWithdrawAmount],
+        args: [actualWithdrawAmount, connectedAddress, connectedAddress], // ERC-4626 withdraw requires (assets, receiver, owner)
       });
 
       notification.success("Withdrawal successful!");

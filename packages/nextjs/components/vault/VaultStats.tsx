@@ -6,11 +6,10 @@ import { useVaultStats } from "~~/hooks/vault";
 
 /**
  * Display vault-wide statistics
- * Shows TVL, APY, leverage, and utilization rate
+ * Shows TVL, leverage, and utilization rate
  */
 export const VaultStats: React.FC = () => {
-  const { tvl, apyPercentage, leverageMultiplier, utilizationPercentage, isRebalanceNeeded, isLoading } =
-    useVaultStats();
+  const { tvl, leverageMultiplier, utilizationPercentage, currentHealthFactor, isLoading } = useVaultStats();
 
   if (isLoading) {
     return (
@@ -36,9 +35,6 @@ export const VaultStats: React.FC = () => {
       <div className="card-body">
         <h2 className="card-title flex items-center justify-between">
           <span>Vault Statistics</span>
-          {isRebalanceNeeded && (
-            <span className="badge badge-warning badge-sm">Rebalance Needed</span>
-          )}
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
@@ -49,11 +45,13 @@ export const VaultStats: React.FC = () => {
             <div className="stat-desc">Vault size</div>
           </div>
 
-          {/* APY */}
+          {/* Health Factor */}
           <div className="stat bg-base-200 rounded-lg p-4">
-            <div className="stat-title text-sm">Current APY</div>
-            <div className="stat-value text-2xl text-success">{apyPercentage.toFixed(2)}%</div>
-            <div className="stat-desc">Annual yield</div>
+            <div className="stat-title text-sm">Health Factor</div>
+            <div className="stat-value text-2xl text-success">
+              {currentHealthFactor > 0n ? (Number(currentHealthFactor) / 1e18).toFixed(2) : "N/A"}
+            </div>
+            <div className="stat-desc">Position safety</div>
           </div>
 
           {/* Leverage */}
@@ -75,7 +73,7 @@ export const VaultStats: React.FC = () => {
         <div className="divider"></div>
         <div className="text-xs text-base-content/50 space-y-1">
           <p>Statistics update every block</p>
-          <p>APY is calculated based on current rates and may vary</p>
+          <p>Health factor above 1.0 indicates a safe position</p>
         </div>
       </div>
     </div>
