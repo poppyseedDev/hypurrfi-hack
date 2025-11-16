@@ -33,11 +33,17 @@ export const DepositForm: React.FC = () => {
     },
   });
 
+  // Compute allowance args
+  const allowanceArgs = useMemo(
+    () => [connectedAddress, VAULT_ADDRESS] as readonly [string | undefined, string | undefined],
+    [connectedAddress, VAULT_ADDRESS],
+  );
+
   // Fetch current allowance
   const { data: allowance, refetch: refetchAllowance } = useScaffoldReadContract({
     contractName: "MockERC20",
     functionName: "allowance",
-    args: [connectedAddress, VAULT_ADDRESS] as readonly [string | undefined, string | undefined],
+    args: allowanceArgs,
     query: {
       enabled: !!connectedAddress && !!VAULT_ADDRESS,
       refetchInterval: 3000, // Refetch every 3 seconds to catch approval updates
