@@ -18,24 +18,24 @@
 @plugin "daisyui/theme" {
   name: "light";
 
-  --color-primary: #93bbfb;
-  --color-primary-content: #212638;
-  --color-secondary: #dae8ff;
-  --color-secondary-content: #212638;
-  --color-accent: #93bbfb;
-  --color-accent-content: #212638;
-  --color-neutral: #212638;
+  --color-primary: #8B5CF6;
+  --color-primary-content: #ffffff;
+  --color-secondary: #3B82F6;
+  --color-secondary-content: #ffffff;
+  --color-accent: #EC4899;
+  --color-accent-content: #ffffff;
+  --color-neutral: #1E293B;
   --color-neutral-content: #ffffff;
   --color-base-100: #ffffff;
-  --color-base-200: #f4f8ff;
-  --color-base-300: #dae8ff;
-  --color-base-content: #212638;
-  --color-info: #93bbfb;
-  --color-success: #34eeb6;
-  --color-warning: #ffcf72;
-  --color-error: #ff8863;
+  --color-base-200: #F8FAFC;
+  --color-base-300: #E2E8F0;
+  --color-base-content: #0F172A;
+  --color-info: #3B82F6;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
 
-  --radius-field: 9999rem;
+  --radius-field: 0.75rem;
   --radius-box: 1rem;
   --tt-tailw: 6px;
 }
@@ -43,24 +43,24 @@
 @plugin "daisyui/theme" {
   name: "dark";
 
-  --color-primary: #212638;
-  --color-primary-content: #f9fbff;
-  --color-secondary: #323f61;
-  --color-secondary-content: #f9fbff;
-  --color-accent: #4969a6;
-  --color-accent-content: #f9fbff;
-  --color-neutral: #f9fbff;
-  --color-neutral-content: #385183;
-  --color-base-100: #385183;
-  --color-base-200: #2a3655;
-  --color-base-300: #212638;
-  --color-base-content: #f9fbff;
-  --color-info: #385183;
-  --color-success: #34eeb6;
-  --color-warning: #ffcf72;
-  --color-error: #ff8863;
+  --color-primary: #A78BFA;
+  --color-primary-content: #0F172A;
+  --color-secondary: #60A5FA;
+  --color-secondary-content: #0F172A;
+  --color-accent: #F472B6;
+  --color-accent-content: #0F172A;
+  --color-neutral: #F1F5F9;
+  --color-neutral-content: #0F172A;
+  --color-base-100: #0F172A;
+  --color-base-200: #1E293B;
+  --color-base-300: #334155;
+  --color-base-content: #F1F5F9;
+  --color-info: #60A5FA;
+  --color-success: #34D399;
+  --color-warning: #FBBF24;
+  --color-error: #F87171;
 
-  --radius-field: 9999rem;
+  --radius-field: 0.75rem;
   --radius-box: 1rem;
 
   --tt-tailw: 6px;
@@ -120,4 +120,41 @@
 
 .link:hover {
   opacity: 80%;
+}
+
+/* HypurrFi Custom Styles */
+.gradient-text {
+  background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 50%, #EC4899 100%);
+}
+
+.gradient-bg-subtle {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
+}
+
+.card-hover {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.glassmorphism {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .glassmorphism {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }

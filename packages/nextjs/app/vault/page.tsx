@@ -13,16 +13,20 @@ const VaultPage: NextPage = () => {
   const { isConnected } = useAccount();
 
   return (
-    <div className="flex items-center flex-col grow pt-10">
-      {/* Header Section */}
-      <div className="px-5 w-full max-w-7xl">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2">HypurrFi Leverage Loop Vault</h1>
-          <p className="text-lg text-base-content/70">
-            Earn leveraged yields with automated position management
-          </p>
+    <div className="flex items-center flex-col grow">
+      {/* Hero Banner */}
+      <div className="w-full gradient-bg-subtle py-12 px-5 mb-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center">
+            <h1 className="text-5xl font-bold mb-3">
+              <span className="gradient-text">Leverage Vault</span>
+            </h1>
+            <p className="text-xl text-base-content/70">Automated leveraged yields on HyperEVM</p>
+          </div>
         </div>
+      </div>
 
+      <div className="px-5 w-full max-w-7xl">
         {/* Risk Warning Banner */}
         {isConnected && (
           <div className="alert alert-warning shadow-lg mb-6">
@@ -71,59 +75,34 @@ const VaultPage: NextPage = () => {
         </div>
 
         {/* Info Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="card bg-base-200 shadow-md">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="card bg-base-200 shadow-lg card-hover">
             <div className="card-body">
-              <h3 className="card-title text-lg">How It Works</h3>
+              <h3 className="card-title text-lg text-primary">How It Works</h3>
               <p className="text-sm text-base-content/70">
-                Deposit assets to receive vault shares. The vault automatically manages leveraged positions using
-                protocols like Aave and Uniswap to maximize yields.
+                Deposit USDC to receive vault shares. The vault automatically manages leveraged positions on HypurrFi
+                lending markets to maximize yields.
               </p>
             </div>
           </div>
 
-          <div className="card bg-base-200 shadow-md">
+          <div className="card bg-base-200 shadow-lg card-hover">
             <div className="card-body">
-              <h3 className="card-title text-lg">Leverage Strategy</h3>
+              <h3 className="card-title text-lg text-success">Leverage Strategy</h3>
               <p className="text-sm text-base-content/70">
-                The vault maintains a target leverage ratio by borrowing against collateral. Positions are automatically
-                rebalanced to optimize returns while managing risk.
+                The vault maintains an optimal leverage ratio by borrowing against collateral. Positions are
+                automatically rebalanced to optimize returns while managing risk.
               </p>
             </div>
           </div>
 
-          <div className="card bg-base-200 shadow-md">
+          <div className="card bg-base-200 shadow-lg card-hover">
             <div className="card-body">
-              <h3 className="card-title text-lg">Risk Management</h3>
+              <h3 className="card-title text-lg text-accent">Risk Management</h3>
               <p className="text-sm text-base-content/70">
                 Monitor your health factor to ensure your position stays safe. A health factor below 1.0 may result in
-                liquidation. Rebalancing helps maintain healthy positions.
+                liquidation. Rebalance to maintain healthy positions.
               </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Contract Notice */}
-        <div className="alert shadow-lg">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            className="stroke-info shrink-0 w-6 h-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            ></path>
-          </svg>
-          <div>
-            <h3 className="font-bold">Development Notice</h3>
-            <div className="text-sm">
-              This UI is ready to connect to a deployed vault contract. Update the contract name in the hooks and
-              components to match your deployed vault contract. See the{" "}
-              <code className="bg-base-300 px-1 rounded">deployedContracts.ts</code> file for available contracts.
             </div>
           </div>
         </div>

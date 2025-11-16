@@ -6,8 +6,8 @@ import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
 export const metadata = getMetadata({
-  title: "Scaffold-ETH 2 App",
-  description: "Built with 🏗 Scaffold-ETH 2",
+  title: "HypurrFi - Automated Leverage Vault",
+  description: "One-click leveraged yields on HyperEVM. Automated position management with built-in risk controls.",
 });
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
